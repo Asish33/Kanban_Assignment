@@ -10,6 +10,8 @@ type Task = {
 type TaskStore = {
   tasks: Task[];
   setTasks: (tasks: Task[]) => void;
+  searchText:string;
+  setSearchText:(searchInput:string)=>void;
 };
 
 export const useTaskStore = create<TaskStore>((set) => ({
@@ -30,4 +32,8 @@ export const useTaskStore = create<TaskStore>((set) => ({
     { id: "task-4", text: "Task 4", description: "nothing", column: "done" },
   ],
   setTasks: (tasks) => set({ tasks }),
+  searchText: "",
+  setSearchText: (text) => set({ searchText: text.toLowerCase() }),
 }));
+
+

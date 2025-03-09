@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
-import { useTaskStore } from "@/store/Store";
+import { useTaskStore } from "@/store/TaskStore";
 import { DraggableCard } from "@/components/ui/DraggableCard";
 import { DroppableColumn } from "@/components/ui/DroppableColumn";
 import {
@@ -15,32 +15,35 @@ import {
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "@/components/ui/label";
-
-
+import { PlaceholdersAndVanishInput } from "./ui/placeholders-and-vanish-input";
 
 export function DashBoard() {
-  const deatilsref = useRef<HTMLInputElement>(null);
-  const descriptionRef=useRef<HTMLInputElement>(null);
+  const taskNameRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLInputElement>(null);
   const tasks = useTaskStore((state) => state.tasks);
   const setTasks = useTaskStore((state) => state.setTasks);
+  const searchText = useTaskStore((state) => state.searchText);
+  const setSearchText = useTaskStore((state) => state.setSearchText);
 
-  function fun() {
-    if (!deatilsref.current?.value) return;
-    if (!descriptionRef.current?.value){
-      alert("add description.")
+  function addTask() {
+    if (!taskNameRef.current?.value) return;
+    if (!descriptionRef.current?.value) {
+      alert("Please add a description.");
       return;
     }
+
     setTasks([
       ...tasks,
       {
         id: `task-${tasks.length + 1}`,
-        text: deatilsref.current.value,
+        text: taskNameRef.current.value,
         description: descriptionRef.current.value,
         column: "todo",
       },
     ]);
 
-    deatilsref.current.value = ""; // Clearing Input Field after adding Tasks
+    taskNameRef.current.value = "";
+    descriptionRef.current.value = "";
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -57,20 +60,29 @@ export function DashBoard() {
   };
 
   return (
-    <div>
+    <div className="bg-red-200">
+      <PlaceholdersAndVanishInput
+        placeholders={["string", "enter"]}
+        onChange={(e) => setSearchText(e.target.value)}
+        onSubmit={()=>setSearchText("")}
+      ></PlaceholdersAndVanishInput>
+
       <DndContext onDragEnd={handleDragEnd}>
-        <div className="flex w-full h-screen gap-4 p-4">
+        <div className="flex gap-4">
           {["todo", "peer-Review", "in-progress", "done"].map((column) => (
             <DroppableColumn
               key={column}
               id={column}
-              className="flex-1 flex flex-col bg-gray-100 p-4 rounded-lg"
+              className="flex-1 min-h-screen"
             >
               <h2 className="text-xl font-semibold mb-2 capitalize">
                 {column.replace("-", " ")}
               </h2>
               {tasks
                 .filter((task) => task.column === column)
+                .filter((task) =>
+                  task.text.toLowerCase().includes(searchText.toLowerCase())
+                )
                 .map((task) => (
                   <DraggableCard key={task.id} id={task.id}>
                     <div className="font-bold">{task.text}</div>
@@ -88,31 +100,17 @@ export function DashBoard() {
           <DialogHeader>
             <DialogTitle>Add New Task</DialogTitle>
             <DialogDescription>
-              <div className="grid w-full max-w-sm items-center gap-1.5">
-                <Label className="text-black" htmlFor="taskName">
-                  Task Name
-                </Label>
-                <Input
-                  ref={deatilsref}
-                  type="text"
-                  id="taskName"
-                  placeholder="Enter task name"
-                />
-                <Label className="text-black" htmlFor="taskName">
-                  Task Name
-                </Label>
-                <Input
-                  ref={descriptionRef}
-                  type="text"
-                  id="taskName"
-                  placeholder="Enter task name"
-                />
-                <DialogClose asChild>
-                  <Button type="button" variant="secondary" onClick={fun}>
-                    Submit
-                  </Button>
-                </DialogClose>
-              </div>
+              <Label htmlFor="taskName">Task Name</Label>
+              <Input ref={taskNameRef} type="text" id="taskName" />
+
+              <Label htmlFor="taskDescription">Task Description</Label>
+              <Input ref={descriptionRef} type="text" id="taskDescription" />
+
+              <DialogClose asChild>
+                <Button type="button" onClick={addTask}>
+                  Submit
+                </Button>
+              </DialogClose>
             </DialogDescription>
           </DialogHeader>
         </DialogContent>
