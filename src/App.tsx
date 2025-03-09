@@ -1,9 +1,8 @@
 import { DashBoard } from "./components/Dashboard";
-
 function App() {
   return (
     <div>
-      <DashBoard />
+      <DashBoard/>
     </div>
   );
 }

@@ -10,30 +10,24 @@ type Task = {
 type TaskStore = {
   tasks: Task[];
   setTasks: (tasks: Task[]) => void;
-  searchText:string;
-  setSearchText:(searchInput:string)=>void;
+  searchText: string;
+  setSearchText: (searchInput: string) => void;
+};
+
+// Helper function to load tasks from localStorage or fallback to an empty array
+const loadTasks = (): Task[] => {
+  const storedTasks = localStorage.getItem("tasks");
+  return storedTasks
+    ? JSON.parse(storedTasks)
+    : [{ id: "example", text: "Example Task", description: "Add tasks to use....", column: "todo" }];
 };
 
 export const useTaskStore = create<TaskStore>((set) => ({
-  tasks: [
-    { id: "task-1", text: "Task 1", description: "task 1", column: "todo" },
-    {
-      id: "task-2",
-      text: "Task 2",
-      description: "nothing",
-      column: "in-progress",
-    },
-    {
-      id: "task-3",
-      text: "Task 3",
-      description: "nothing",
-      column: "peer-Review",
-    },
-    { id: "task-4", text: "Task 4", description: "nothing", column: "done" },
-  ],
-  setTasks: (tasks) => set({ tasks }),
+  tasks: loadTasks(), // Load tasks from localStorage initially
+  setTasks: (tasks) => {
+    set({ tasks });
+    localStorage.setItem("tasks", JSON.stringify(tasks)); // Update localStorage whenever tasks are modified
+  },
   searchText: "",
   setSearchText: (text) => set({ searchText: text.toLowerCase() }),
 }));
-
-

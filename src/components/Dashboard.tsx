@@ -31,19 +31,22 @@ export function DashBoard() {
       alert("Please add a description.");
       return;
     }
-
-    setTasks([
+    const updatedTasks = [
       ...tasks,
       {
         id: `task-${tasks.length + 1}`,
         text: taskNameRef.current.value,
         description: descriptionRef.current.value,
         column: "todo",
-      },
-    ]);
+      }, // adding new task intially to todo column
+    ];
+    setTasks(updatedTasks);
 
     taskNameRef.current.value = "";
     descriptionRef.current.value = "";
+    const string = JSON.stringify(updatedTasks);
+    console.log(JSON.parse(string));
+    localStorage.setItem("tasks" , string);
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -64,7 +67,7 @@ export function DashBoard() {
       <PlaceholdersAndVanishInput
         placeholders={["string", "enter"]}
         onChange={(e) => setSearchText(e.target.value)}
-        onSubmit={()=>setSearchText("")}
+        onSubmit={() => setSearchText("")}
       ></PlaceholdersAndVanishInput>
 
       <DndContext onDragEnd={handleDragEnd}>
@@ -75,6 +78,8 @@ export function DashBoard() {
               id={column}
               className="flex-1 min-h-screen"
             >
+              {" "}
+              {/* rendering droppable columns */}
               <h2 className="text-xl font-semibold mb-2 capitalize">
                 {column.replace("-", " ")}
               </h2>
@@ -85,6 +90,8 @@ export function DashBoard() {
                 )
                 .map((task) => (
                   <DraggableCard key={task.id} id={task.id}>
+                    {" "}
+                    {/* rendering task cards */}
                     <div className="font-bold">{task.text}</div>
                     <div>{task.description}</div>
                   </DraggableCard>
