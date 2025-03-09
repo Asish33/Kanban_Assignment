@@ -12,7 +12,7 @@ export function DroppableColumn({ id, children,className }: DroppableColumnProps
   return (
     <div
       ref={setNodeRef}
-      className={`p-4 bg-gray-100 rounded-lg min-h-[200px] flex flex-col gap-4 ${className}`}
+      className={`p-4 bg-[#2d2b3c] rounded-lg min-h-[200px] flex flex-col gap-4 ${className}`}
     >
       {children}
     </div>

@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, forwardRef } from "react";
 import { DndContext, DragEndEvent } from "@dnd-kit/core";
 import { useTaskStore } from "@/store/TaskStore";
 import { DraggableCard } from "@/components/ui/DraggableCard";
@@ -13,13 +13,14 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
 import { Label } from "@/components/ui/label";
 import { PlaceholdersAndVanishInput } from "./ui/placeholders-and-vanish-input";
+import { Input } from "@/components/ui/input";
 
 export function DashBoard() {
-  const taskNameRef = useRef<HTMLInputElement>(null);
-  const descriptionRef = useRef<HTMLInputElement>(null);
+ const taskNameRef = useRef<HTMLInputElement | null>(null);
+ const descriptionRef = useRef<HTMLInputElement | null>(null);
+
   const tasks = useTaskStore((state) => state.tasks);
   const setTasks = useTaskStore((state) => state.setTasks);
   const searchText = useTaskStore((state) => state.searchText);
@@ -38,15 +39,13 @@ export function DashBoard() {
         text: taskNameRef.current.value,
         description: descriptionRef.current.value,
         column: "todo",
-      }, // adding new task intially to todo column
+      },
     ];
     setTasks(updatedTasks);
 
     taskNameRef.current.value = "";
     descriptionRef.current.value = "";
-    const string = JSON.stringify(updatedTasks);
-    console.log(JSON.parse(string));
-    localStorage.setItem("tasks" , string);
+    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -63,24 +62,65 @@ export function DashBoard() {
   };
 
   return (
-    <div className="bg-red-200">
+    <div className="bg-[#1F1C2C] p-5">
       <PlaceholdersAndVanishInput
+        className="mb-5"
         placeholders={["string", "enter"]}
         onChange={(e) => setSearchText(e.target.value)}
         onSubmit={() => setSearchText("")}
-      ></PlaceholdersAndVanishInput>
+      />
+
+      <Dialog>
+        <DialogTrigger className="text-white">
+          <Button className="p-5 mb-2">Add Task</Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="m-2">Add New Task</DialogTitle>
+            <DialogDescription>
+              <Label htmlFor="taskName" className="text-black">
+                Task Name
+              </Label>
+              <Input
+                ref={taskNameRef}
+                type="text"
+                id="taskName"
+                className="m-2"
+              />
+
+              <Label htmlFor="taskDescription" className="text-black">
+                Task Description
+              </Label>
+              <Input
+                ref={descriptionRef}
+                type="text"
+                id="taskDescription"
+                className="m-2"
+              />
+
+              <DialogClose asChild>
+                <Button
+                  type="button"
+                  className="place-self-end m-2 w-fit"
+                  onClick={addTask}
+                >
+                  Submit
+                </Button>
+              </DialogClose>
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
 
       <DndContext onDragEnd={handleDragEnd}>
         <div className="flex gap-4">
-          {["todo", "peer-Review", "in-progress", "done"].map((column) => (
+          {["todo", "peer-review", "in-progress", "done"].map((column) => (
             <DroppableColumn
               key={column}
               id={column}
-              className="flex-1 min-h-screen"
+              className="flex-1  min-h-screen"
             >
-              {" "}
-              {/* rendering droppable columns */}
-              <h2 className="text-xl font-semibold mb-2 capitalize">
+              <h2 className="text-xl text-white font-semibold mb-2 capitalize">
                 {column.replace("-", " ")}
               </h2>
               {tasks
@@ -89,9 +129,11 @@ export function DashBoard() {
                   task.text.toLowerCase().includes(searchText.toLowerCase())
                 )
                 .map((task) => (
-                  <DraggableCard key={task.id} id={task.id}>
-                    {" "}
-                    {/* rendering task cards */}
+                  <DraggableCard
+                    className="bg-[#ECF0F1]"
+                    key={task.id}
+                    id={task.id}
+                  >
                     <div className="font-bold">{task.text}</div>
                     <div>{task.description}</div>
                   </DraggableCard>
@@ -100,28 +142,6 @@ export function DashBoard() {
           ))}
         </div>
       </DndContext>
-
-      <Dialog>
-        <DialogTrigger>Add Task</DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add New Task</DialogTitle>
-            <DialogDescription>
-              <Label htmlFor="taskName">Task Name</Label>
-              <Input ref={taskNameRef} type="text" id="taskName" />
-
-              <Label htmlFor="taskDescription">Task Description</Label>
-              <Input ref={descriptionRef} type="text" id="taskDescription" />
-
-              <DialogClose asChild>
-                <Button type="button" onClick={addTask}>
-                  Submit
-                </Button>
-              </DialogClose>
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

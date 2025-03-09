@@ -2,7 +2,13 @@
 
 @plugin "tailwindcss-animate";
 
+
 @custom-variant dark (&:is(.dark *));
+
+body {
+  font-family: 'Poppins', sans-serif;
+}
+
 
 :root {
   --background: oklch(1 0 0);
@@ -112,6 +118,11 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+}
+.transparent-gradient {
+  background:  linear-gradient(to right, #0575e6, #021b79);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent; /* Makes the text transparent */
 }
 
 @layer base {
